@@ -1,15 +1,12 @@
-# ===============================
-# Sensitive / private data
-# ===============================
-
+﻿# Sensitive / private data excluded from public repo
 data/raw/*
 data/processed/*
 data/output/*
-
-# Keep empty folder structure on GitHub
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/output/.gitkeep
+screenshots/private_raw/
+sql/SQL_Screenshot_annotated_private.md
 
 # Excel outputs with user IDs
 *.xlsx
@@ -32,5 +29,4 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .vscode/
-# Visual Studio local metadata
 .vs/

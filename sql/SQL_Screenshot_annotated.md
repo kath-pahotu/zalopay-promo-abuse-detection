@@ -1,4 +1,4 @@
-﻿# SQL Result Screenshots â€” ZaloPay Campaign Abuse Detection Project
+# SQL Result Screenshots - ZaloPay Campaign Abuse Detection Project
 
 This document records the SQL result screenshots used during the analysis.  
 Each screenshot is documented with:
@@ -18,14 +18,14 @@ The goal is to make the SQL workflow read like an analysis story, not only a lis
 
 ```text
 00_database_overview.sql
-â†’ 01_table_schema_check.sql
-â†’ 02_sample_all_tables.sql
-â†’ 03_data_quality_check.sql
-â†’ 04_relationship_check.sql
-â†’ 05_business_questions.sql
-â†’ 06_campaign_discovery_scan.sql
-â†’ 07_selected_campaign_deep_dive.sql
-â†’ 08_abuse_detection_rules_final.sql
+-> 01_table_schema_check.sql
+-> 02_sample_all_tables.sql
+-> 03_data_quality_check.sql
+-> 04_relationship_check.sql
+-> 05_business_questions.sql
+-> 06_campaign_discovery_scan.sql
+-> 07_selected_campaign_deep_dive.sql
+-> 08_abuse_detection_rules_final.sql
 ```
 
 ---
@@ -35,9 +35,9 @@ The goal is to make the SQL workflow read like an analysis story, not only a lis
 
 **Confirm current database**
 
-**Question answered:** Am I running the SQL queries inside the correct database?
+**Question answered:** Am I running the SQL queries inside the correct database
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 001](../screenshots/public_blur/00_database_overview/confirm_current_database.png)
 
 **Key result:** The query confirms that the active database is `zalo`.
 
@@ -49,9 +49,9 @@ The goal is to make the SQL workflow read like an analysis story, not only a lis
 
 **List all user tables**
 
-**Question answered:** What user-created tables exist in the database?
+**Question answered:** What user-created tables exist in the database
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 002](../screenshots/public_blur/00_database_overview/list_all_user_tables.png)
 
 **Key result:** The database contains the main analytical tables: `transaction`, `transfer`, `user_profile`, `referral_mapcard`, `campaign_info`, and `appid_info`.
 
@@ -63,9 +63,9 @@ The goal is to make the SQL workflow read like an analysis story, not only a lis
 
 **Row count for each table**
 
-**Question answered:** How many rows does each table contain?
+**Question answered:** How many rows does each table contain
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 003](../screenshots/public_blur/00_database_overview/row_count_for_each_table.png)
 
 **Key result:** The largest tables are `transaction`, `transfer`, `user_profile`, and `referral_mapcard`. The lookup tables `campaign_info` and `appid_info` are much smaller.
 
@@ -77,9 +77,9 @@ The goal is to make the SQL workflow read like an analysis story, not only a lis
 
 **Table size overview**
 
-**Question answered:** Which tables take the most storage space?
+**Question answered:** Which tables take the most storage space
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 004](../screenshots/public_blur/00_database_overview/table_size_overview.png)
 
 **Key result:** The `transaction` and `transfer` tables are the largest by storage size.
 
@@ -89,7 +89,7 @@ The goal is to make the SQL workflow read like an analysis story, not only a lis
 
 ---
 
-**Section takeaway â€” `00_database_overview.sql`**
+**Section takeaway - `00_database_overview.sql`**
 
 The database contains 6 relational tables with around 2.44M total rows. The dataset is large enough to support a realistic SQL-based DA/BI project involving campaign analysis, payment behavior, referral relationships, transfer behavior, and abuse detection.
 
@@ -100,9 +100,9 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **Table schema check**
 
-**Question answered:** What columns, data types, and nullable fields exist in each table?
+**Question answered:** What columns, data types, and nullable fields exist in each table
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 005](../screenshots/public_blur/01_table_schema_check/table_schema_check.png)
 
 **Key result:** The query lists table names, column positions, column names, data types, precision/length, and nullability.
 
@@ -117,9 +117,9 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **`appid_info` sample**
 
-**Question answered:** What merchant/app metadata is available?
+**Question answered:** What merchant/app metadata is available
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 006](../screenshots/public_blur/02_sample_all_tables/appid_info.png)
 
 **Key result:** `appid_info` maps `appID` to `appName`, `reportCat`, and `reportSubCat`.
 
@@ -131,9 +131,9 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **`campaign_info` sample**
 
-**Question answered:** What campaign metadata is available?
+**Question answered:** What campaign metadata is available
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 007](../screenshots/public_blur/02_sample_all_tables/campaign_info.png)
 
 **Key result:** `campaign_info` maps `campaignID` to `promotionName`, `campaignCode`, and `promotion_type`.
 
@@ -145,9 +145,9 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **`referral_mapcard` sample**
 
-**Question answered:** How are inviter and invitee relationships stored?
+**Question answered:** How are inviter and invitee relationships stored
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 008](../screenshots/public_blur/02_sample_all_tables/referral_mapcard.png)
 
 **Key result:** `userID` represents the inviter, `refereeId` represents the invitee, and `reqDate` records the referral request time.
 
@@ -159,9 +159,9 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **`transaction` sample**
 
-**Question answered:** What does a transaction record contain?
+**Question answered:** What does a transaction record contain
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 009](../screenshots/public_blur/02_sample_all_tables/transaction.png)
 
 **Key result:** `transaction` contains user payment/campaign activity, transaction status, device/IP, amount, discount amount, appID, campaignID, and timestamps.
 
@@ -173,13 +173,13 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **`transfer` sample**
 
-**Question answered:** What does a transfer record contain?
+**Question answered:** What does a transfer record contain
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 010](../screenshots/public_blur/02_sample_all_tables/transfer.png)
 
 **Key result:** `transfer` contains sender, receiver, amount, transaction status, device/platform, and request time.
 
-**Business interpretation:** This table supports transfer-loop analysis, such as A â†’ B then B â†’ A within a short time window.
+**Business interpretation:** This table supports transfer-loop analysis, such as A -> B then B -> A within a short time window.
 
 **Next step:** Review user profile records.
 
@@ -187,9 +187,9 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 **`user_profile` sample**
 
-**Question answered:** What user profile metadata is available?
+**Question answered:** What user profile metadata is available
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 011](../screenshots/public_blur/02_sample_all_tables/user_profile.png)
 
 **Key result:** `user_profile` contains `userID`, `created_date`, and phone provider information.
 
@@ -199,7 +199,7 @@ The database contains 6 relational tables with around 2.44M total rows. The data
 
 ---
 
-**Section takeaway â€” `02_sample_all_tables.sql`**
+**Section takeaway - `02_sample_all_tables.sql`**
 
 The sample records confirm the core analytical roles of each table: `transaction` and `transfer` are behavior/event tables; `user_profile` provides user account context; `referral_mapcard` gives inviter-invitee relationships; `campaign_info` and `appid_info` provide metadata for campaign and merchant analysis.
 
@@ -210,9 +210,9 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 **Row counts**
 
-**Question answered:** Do the imported tables have the expected row volumes?
+**Question answered:** Do the imported tables have the expected row volumes
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 012](../screenshots/public_blur/03_data_quality_check/row_counts.png)
 
 **Key result:** The row counts match the overview: `transaction`, `transfer`, `user_profile`, and `referral_mapcard` are the major tables, while `campaign_info` and `appid_info` are lookup tables.
 
@@ -222,11 +222,11 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 ---
 
-**Duplicate check â€” transaction ID**
+**Duplicate check - transaction ID**
 
-**Question answered:** Are there duplicate `transID` values in the `transaction` table?
+**Question answered:** Are there duplicate `transID` values in the `transaction` table
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 013](../screenshots/public_blur/03_data_quality_check/duplicate_check_transaction_id.png)
 
 **Key result:** The result shows that `transID` is not fully unique in `transaction`; duplicate transaction IDs exist.
 
@@ -238,9 +238,9 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 **Duplicated `transID` examples**
 
-**Question answered:** What do duplicated transaction IDs look like?
+**Question answered:** What do duplicated transaction IDs look like
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 014](../screenshots/public_blur/03_data_quality_check/view_duplicated_transid_examples.png)
 
 **Key result:** The example output shows duplicated `transID` values and their row counts.
 
@@ -250,13 +250,13 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 ---
 
-**Duplicate check â€” `appid_info` and `campaign_info` master keys**
+**Duplicate check - `appid_info` and `campaign_info` master keys**
 
-**Question answered:** Are the lookup table keys `appID` and `campaignID` unique?
+**Question answered:** Are the lookup table keys `appID` and `campaignID` unique
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 015](../screenshots/public_blur/03_data_quality_check/duplicate_check_appid_master_table.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 016](../screenshots/public_blur/03_data_quality_check/duplicate_check_campaignid_master_table.png)
 
 **Key result:** The master tables do not show duplicate key issues.
 
@@ -268,15 +268,15 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 **Basic date ranges**
 
-**Question answered:** What time period does the dataset cover?
+**Question answered:** What time period does the dataset cover
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 017](../screenshots/public_blur/03_data_quality_check/basic_date_ranges_transaction.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 018](../screenshots/public_blur/03_data_quality_check/basic_date_ranges_transfer.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 019](../screenshots/public_blur/03_data_quality_check/basic_date_ranges_referral_mapcard.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 020](../screenshots/public_blur/03_data_quality_check/basic_date_ranges_user_profile.png)
 
 **Key result:** The main event tables cover the campaign activity period around June to early August 2022, while `user_profile` contains older account creation dates.
 
@@ -288,9 +288,9 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 **Missing-value check for important transaction fields**
 
-**Question answered:** Which important transaction fields contain missing values?
+**Question answered:** Which important transaction fields contain missing values
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 021](../screenshots/public_blur/03_data_quality_check/missing_value_check_important_transaction_fields.png)
 
 **Key result:** Some fields such as `appID`, `deviceID`, and `userIP` can be missing, while core user and transaction fields are usable.
 
@@ -302,9 +302,9 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 **Transaction status distribution**
 
-**Question answered:** How many transaction rows are successful vs failed or other statuses?
+**Question answered:** How many transaction rows are successful vs failed or other statuses
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 022](../screenshots/public_blur/03_data_quality_check/transaction_status_distribution.png)
 
 **Key result:** `transStatus = 1` is the dominant successful status, while negative status codes represent unsuccessful/failed statuses.
 
@@ -316,9 +316,9 @@ The sample records confirm the core analytical roles of each table: `transaction
 
 **Campaign code distribution**
 
-**Question answered:** Which campaign codes appear most frequently in transaction data?
+**Question answered:** Which campaign codes appear most frequently in transaction data
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 023](../screenshots/public_blur/03_data_quality_check/campaign_code_distribution.png)
 
 **Key result:** The result shows multiple campaign codes with different volumes and campaign activity levels.
 
@@ -335,9 +335,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **High-referral inviters**
 
-**Question answered:** Which users invited unusually many invitees?
+**Question answered:** Which users invited unusually many invitees
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 024](../screenshots/public_blur/03_data_quality_check_file_check/high_referral_inviters.png)
 
 **Key result:** Some inviters have very high referral counts and long referral activity windows.
 
@@ -349,9 +349,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Invitees invited more than once**
 
-**Question answered:** Are some invitees linked to multiple inviters?
+**Question answered:** Are some invitees linked to multiple inviters
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 025](../screenshots/public_blur/03_data_quality_check_file_check/invitees_invited_more_than_once.png)
 
 **Key result:** The result shows invitees that appear under more than one inviter.
 
@@ -363,9 +363,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Transfer rows matched to transaction rows**
 
-**Question answered:** Are peer-to-peer transfers already included inside the `transaction` table?
+**Question answered:** Are peer-to-peer transfers already included inside the `transaction` table
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 026](../screenshots/public_blur/03_data_quality_check_file_check/transfer_already_inside_transaction.png)
 
 **Key result:** Only a small portion of transfer rows match transaction rows by transaction ID.
 
@@ -377,9 +377,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Transfer users exist in user profile**
 
-**Question answered:** Do transfer senders and receivers exist in `user_profile`?
+**Question answered:** Do transfer senders and receivers exist in `user_profile`
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 027](../screenshots/public_blur/03_data_quality_check_file_check/transfer_users_exist_in_user_profile.png)
 
 **Key result:** All transfer senders and receivers match users in `user_profile`.
 
@@ -391,9 +391,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Transfer users appearing in transaction history**
 
-**Question answered:** Do transfer senders/receivers also have transaction activity?
+**Question answered:** Do transfer senders/receivers also have transaction activity
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 028](../screenshots/public_blur/03_data_quality_check_file_check/transfer_senders_receivers_appear_in_transaction.png)
 
 **Key result:** Some transfer users also appear in `transaction`, while some may only appear in transfer behavior.
 
@@ -405,9 +405,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Platform distribution in `transaction`**
 
-**Question answered:** How are transaction rows distributed by platform?
+**Question answered:** How are transaction rows distributed by platform
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 029](../screenshots/public_blur/03_data_quality_check_file_check/platform_distribution_in_transaction.png)
 
 **Key result:** The transaction table includes platform values and some NULL platform rows.
 
@@ -419,9 +419,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Platform distribution in `transfer`**
 
-**Question answered:** How are transfer rows distributed by platform?
+**Question answered:** How are transfer rows distributed by platform
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 030](../screenshots/public_blur/03_data_quality_check_file_check/platform_distribution_in_transfer.png)
 
 **Key result:** Transfer rows are distributed across available platforms and show successful transfer behavior.
 
@@ -433,9 +433,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Referral abuse signal**
 
-**Question answered:** Which users show high referral activity?
+**Question answered:** Which users show high referral activity
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 031](../screenshots/public_blur/03_data_quality_check_file_check/referral_abuse.png)
 
 **Key result:** The result identifies users with high invitee counts.
 
@@ -447,9 +447,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Device abuse signal**
 
-**Question answered:** Which device IDs are shared by many users?
+**Question answered:** Which device IDs are shared by many users
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 032](../screenshots/public_blur/03_data_quality_check_file_check/device_abuse.png)
 
 **Key result:** The result identifies device IDs used by multiple users.
 
@@ -461,9 +461,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **IP abuse signal**
 
-**Question answered:** Which IP addresses are shared by many users?
+**Question answered:** Which IP addresses are shared by many users
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 033](../screenshots/public_blur/03_data_quality_check_file_check/ip_abuse.png)
 
 **Key result:** The result identifies IP addresses used by many users.
 
@@ -475,17 +475,17 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **New-account abuse exploration**
 
-**Question answered:** Are newly created accounts earning high discounts quickly?
+**Question answered:** Are newly created accounts earning high discounts quickly
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 034](../screenshots/public_blur/03_data_quality_check_file_check/new_account_abuse_01.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 035](../screenshots/public_blur/03_data_quality_check_file_check/new_account_abuse_02.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 036](../screenshots/public_blur/03_data_quality_check_file_check/new_account_abuse_03.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 037](../screenshots/public_blur/03_data_quality_check_file_check/new_account_abuse_04.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 038](../screenshots/public_blur/03_data_quality_check_file_check/new_account_abuse_05.png)
 
 **Key result:** The results explore users whose transactions and discounts happened close to account creation.
 
@@ -497,11 +497,11 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Transfer-loop abuse exploration**
 
-**Question answered:** Do users send money back and forth quickly?
+**Question answered:** Do users send money back and forth quickly
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 039](../screenshots/public_blur/03_data_quality_check_file_check/transfer_loop_abuse.png)
 
-**Key result:** The result identifies A â†’ B â†’ A transfer loops within a short time window.
+**Key result:** The result identifies A -> B -> A transfer loops within a short time window.
 
 **Business interpretation:** Transfer loops can indicate money recycling to create fake activity or satisfy campaign requirements, especially when combined with high campaign discount or referral signals.
 
@@ -511,9 +511,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Verify platform NULL behavior**
 
-**Question answered:** Are NULL platform rows broken data or a meaningful transaction type?
+**Question answered:** Are NULL platform rows broken data or a meaningful transaction type
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 040](../screenshots/public_blur/03_data_quality_check_file_check/verify_platform_null_non_merchant_reward_cashback_records.png)
 
 **Key result:** The check suggests NULL platform rows can be related to non-merchant, reward, or cashback campaign records.
 
@@ -526,11 +526,11 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 ## `04_relationship_check.sql`
 
 
-**`transaction` â†’ `campaign_info`**
+**`transaction` -> `campaign_info`**
 
-**Question answered:** Do transaction campaign IDs match the campaign lookup table?
+**Question answered:** Do transaction campaign IDs match the campaign lookup table
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 041](../screenshots/public_blur/04_relationship_check/transaction_campaign_info.png)
 
 **Key result:** Most campaign-related rows match `campaign_info`. The unmatched campaign records are explained by `campaignID = 0`.
 
@@ -542,9 +542,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Unmatched campaignID examples**
 
-**Question answered:** Which campaign IDs do not match `campaign_info`?
+**Question answered:** Which campaign IDs do not match `campaign_info`
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 042](../screenshots/public_blur/04_relationship_check/unmatched_campaignid_examples.png)
 
 **Key result:** The unmatched rows are concentrated in `campaignID = 0`.
 
@@ -554,11 +554,11 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 ---
 
-**`transaction` â†’ `appid_info` for payment transactions**
+**`transaction` -> `appid_info` for payment transactions**
 
-**Question answered:** Do payment transaction app IDs match the app lookup table?
+**Question answered:** Do payment transaction app IDs match the app lookup table
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 043](../screenshots/public_blur/04_relationship_check/transaction_appid_info_payment_transactions.png)
 
 **Key result:** For payment transactions where `appID > 0`, app IDs match `appid_info`.
 
@@ -570,9 +570,9 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Unmatched appID examples**
 
-**Question answered:** Are there app IDs that fail to match the lookup table?
+**Question answered:** Are there app IDs that fail to match the lookup table
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 044](../screenshots/public_blur/04_relationship_check/unmatched_appid_examples.png)
 
 **Key result:** No meaningful unmatched appID examples appear for payment transactions.
 
@@ -582,11 +582,11 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 ---
 
-**`transaction` â†’ `user_profile`**
+**`transaction` -> `user_profile`**
 
-**Question answered:** Does every transaction user exist in user profile?
+**Question answered:** Does every transaction user exist in user profile
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 045](../screenshots/public_blur/04_relationship_check/transaction_user_profile.png)
 
 **Key result:** All transaction user IDs match `user_profile`.
 
@@ -596,11 +596,11 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 ---
 
-**`referral_mapcard` inviter/referee â†’ `user_profile`**
+**`referral_mapcard` inviter/referee -> `user_profile`**
 
-**Question answered:** Do all inviters and invitees exist in user profile?
+**Question answered:** Do all inviters and invitees exist in user profile
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 046](../screenshots/public_blur/04_relationship_check/referral_mapcard_inviter_referee_user_profile.png)
 
 **Key result:** All referral inviters and invitees match `user_profile`.
 
@@ -610,11 +610,11 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 ---
 
-**`transfer` sender/receiver â†’ `user_profile`**
+**`transfer` sender/receiver -> `user_profile`**
 
-**Question answered:** Do all transfer senders and receivers exist in user profile?
+**Question answered:** Do all transfer senders and receivers exist in user profile
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 047](../screenshots/public_blur/04_relationship_check/transfer_sender_receiver_user_profile.png)
 
 **Key result:** All transfer senders and receivers match `user_profile`.
 
@@ -624,7 +624,7 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 ---
 
-**Section takeaway â€” `04_relationship_check.sql`**
+**Section takeaway - `04_relationship_check.sql`**
 
 The main joins are reliable. CampaignID 0 should be treated as non-campaign activity; payment appIDs with `appID > 0` match app metadata; transaction, referral, and transfer user IDs all connect to `user_profile`.
 
@@ -635,13 +635,13 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **Top 5 `reportCat` by payment transactions**
 
-**Question answered:** Which merchant categories have the highest payment transaction volume?
+**Question answered:** Which merchant categories have the highest payment transaction volume
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 048](../screenshots/public_blur/05_business_questions/top_5_reportcat_by_payment_transactions.png)
 
 **Key result:** Telco is the largest category by payment transactions, followed by Billing, Marketplace, Game, and RST.
 
-**Business interpretation:** This answers the assessmentâ€™s category-level payment analysis question and shows which merchant areas dominate payment activity.
+**Business interpretation:** This answers the assessment's category-level payment analysis question and shows which merchant areas dominate payment activity.
 
 **Next step:** Calculate when users first exceed 100K cumulative discount.
 
@@ -649,9 +649,9 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **First time each user earned more than 100K total discount**
 
-**Question answered:** For each user, when did cumulative discount first exceed 100K?
+**Question answered:** For each user, when did cumulative discount first exceed 100K
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 049](../screenshots/public_blur/05_business_questions/first_time_each_user_earned_more_than_100k_total_discount.png)
 
 **Key result:** The result returns the first successful transaction for each user where running credited discount passed 100K.
 
@@ -663,9 +663,9 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **Weekly payment retention**
 
-**Question answered:** After first successful payment week, how many users came back in later weeks?
+**Question answered:** After first successful payment week, how many users came back in later weeks
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 050](../screenshots/public_blur/05_business_questions/weekly_payment_retention.png)
 
 **Key result:** The result shows cohort week, week number, cohort users, retained users, and retention rate.
 
@@ -680,9 +680,9 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **Campaign overview and ranking**
 
-**Question answered:** Which campaigns stand out by transaction volume, user count, and credited success-only discount cost?
+**Question answered:** Which campaigns stand out by transaction volume, user count, and credited success-only discount cost
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 051](../screenshots/public_blur/06_campaign_discovery_scan/campaign_overview_and_ranking.png)
 
 **Key result:** `ZPI_220801_115` ranks at the top by credited success-only discount, transaction volume, and unique users.
 
@@ -694,9 +694,9 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **Campaign-level suspicious signal scan**
 
-**Question answered:** Which campaigns show high-discount users or suspicious-user indicators?
+**Question answered:** Which campaigns show high-discount users or suspicious-user indicators
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 052](../screenshots/public_blur/06_campaign_discovery_scan/campaign_level_suspicious_signal_scan.png)
 
 **Key result:** `ZPI_220801_115` has the largest credited success-only discount exposure and many users crossing discount thresholds.
 
@@ -708,9 +708,9 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **Campaign priority score**
 
-**Question answered:** Which campaigns should be prioritized for deep-dive investigation?
+**Question answered:** Which campaigns should be prioritized for deep-dive investigation
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 053](../screenshots/public_blur/06_campaign_discovery_scan/campaign_priority_score.png)
 
 **Key result:** `ZPI_220801_115` appears as the strongest investigation candidate using volume, user count, credited discount, and high-discount-user signals.
 
@@ -722,9 +722,9 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 **Promotion-name breakdown across campaigns**
 
-**Question answered:** Which promotion names or campaign IDs drive the largest credited success-only discount cost across campaigns?
+**Question answered:** Which promotion names or campaign IDs drive the largest credited success-only discount cost across campaigns
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 054](../screenshots/public_blur/06_campaign_discovery_scan/promotion_name_breakdown_across_campaigns.png)
 
 **Key result:** The result identifies the highest-cost promotion-level records across campaigns and separates gross discount, credited success-only discount, and non-success discount amount.
 
@@ -734,7 +734,7 @@ The main joins are reliable. CampaignID 0 should be treated as non-campaign acti
 
 ---
 
-**Section takeaway â€” `06_campaign_discovery_scan.sql`**
+**Section takeaway - `06_campaign_discovery_scan.sql`**
 
 The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by scale and credited success-only discount exposure. This justifies moving from all-campaign discovery to a focused campaign deep dive.
 
@@ -745,9 +745,9 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **Selected campaign overview**
 
-**Question answered:** How large is the selected campaign and what is its overall performance?
+**Question answered:** How large is the selected campaign and what is its overall performance
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 055](../screenshots/public_blur/07_selected_campaign_deep_dive/selected_campaign_overview.png)
 
 **Key result:** The result summarizes transactions, users, campaign IDs, success rate, gross discount, credited success-only discount, non-success discount, and active date range for `ZPI_220801_115`.
 
@@ -759,9 +759,9 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **Promotion-level breakdown inside selected campaign**
 
-**Question answered:** Which promotion IDs within the selected campaign drive the most transactions and credited success-only discount cost?
+**Question answered:** Which promotion IDs within the selected campaign drive the most transactions and credited success-only discount cost
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 056](../screenshots/public_blur/07_selected_campaign_deep_dive/promotion_level_breakdown_inside_selected_campaign.png)
 
 **Key result:** The result shows promotion-level transaction rows, users, successful rows, gross discount, credited success-only discount, and non-success discount.
 
@@ -773,9 +773,9 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **Daily campaign trend**
 
-**Question answered:** When did selected-campaign activity and cost happen over time?
+**Question answered:** When did selected-campaign activity and cost happen over time
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 057](../screenshots/public_blur/07_selected_campaign_deep_dive/daily_campaign_trend.png)
 
 **Key result:** The daily trend shows transaction volume, user count, successful rows, gross discount, credited success-only discount, and non-success discount by date.
 
@@ -787,9 +787,9 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **Top users by selected-campaign discount**
 
-**Question answered:** Which users consumed the most promotional value in the selected campaign?
+**Question answered:** Which users consumed the most promotional value in the selected campaign
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 058](../screenshots/public_blur/07_selected_campaign_deep_dive/top_users_by_selected_campaign_discount.png)
 
 **Key result:** The result ranks users by credited success-only campaign discount and successful transaction count.
 
@@ -801,9 +801,9 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **New-account immediate discount behavior**
 
-**Question answered:** Did newly created accounts earn high discount quickly after account creation?
+**Question answered:** Did newly created accounts earn high discount quickly after account creation
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 059](../screenshots/public_blur/07_selected_campaign_deep_dive/new_account_immediate_discount_behavior.png)
 
 **Key result:** The result identifies users with early successful campaign activity and credited immediate discount within 0-1 day.
 
@@ -815,9 +815,9 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **Referral behavior of selected-campaign users**
 
-**Question answered:** Which selected-campaign users invited many other users?
+**Question answered:** Which selected-campaign users invited many other users
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 060](../screenshots/public_blur/07_selected_campaign_deep_dive/referral_behavior_of_selected_campaign_users.png)
 
 **Key result:** The result ranks selected-campaign users by total invitees.
 
@@ -829,11 +829,11 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 **Shared device and IP signals among selected-campaign users**
 
-**Question answered:** Do selected-campaign users share devices or IPs with many users?
+**Question answered:** Do selected-campaign users share devices or IPs with many users
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 061](../screenshots/public_blur/07_selected_campaign_deep_dive/shared_device_signals_among_selected_campaign_users.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 062](../screenshots/public_blur/07_selected_campaign_deep_dive/shared_ip_signals_among_selected_campaign_users.png)
 
 **Key result:** The result identifies shared device and shared IP clusters among users connected to the selected campaign.
 
@@ -843,7 +843,7 @@ The broad scan shows that `ZPI_220801_115` is the most noticeable campaign by sc
 
 ---
 
-**Section takeaway â€” `07_selected_campaign_deep_dive.sql`**
+**Section takeaway - `07_selected_campaign_deep_dive.sql`**
 
 The selected campaign is large, costly on a credited success-only basis, and shows user-level risk patterns such as high discount concentration, rapid new-account reward extraction, high referral counts, and shared device/IP clusters. These findings provide the input signals for the final abuse-detection rules.
 
@@ -854,9 +854,9 @@ The selected campaign is large, costly on a credited success-only basis, and sho
 
 **Final suspicious-user scored output**
 
-**Question answered:** Which selected-campaign users should be prioritized for risk review?
+**Question answered:** Which selected-campaign users should be prioritized for risk review
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 063](../screenshots/public_blur/08_abuse_detection_rules_final/final_suspicious_user_scored_output.png)
 
 **Key result:** The output ranks users by `suspicion_score` and includes fixed promotion-cost signal columns such as `credited_campaign_discount_success_only`, `immediate_discount_0_1_day`, referral count, shared device/IP, transfer-loop count, and reason text.
 
@@ -868,11 +868,11 @@ The selected campaign is large, costly on a credited success-only basis, and sho
 
 **Final output continuation / export view**
 
-**Question answered:** What should be exported as the final deliverable?
+**Question answered:** What should be exported as the final deliverable
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 064](../screenshots/public_blur/08_abuse_detection_rules_final/final_output_continuation.png)
 
-> Screenshot omitted from public repo because the source link contains a private access token.
+![SQL result screenshot 065](../screenshots/public_blur/08_abuse_detection_rules_final/final_export_view.png)
 
 **Key result:** The result contains the required user-level suspicious output and supporting columns for review.
 
@@ -882,7 +882,7 @@ The selected campaign is large, costly on a credited success-only basis, and sho
 
 ---
 
-**Section takeaway â€” `08_abuse_detection_rules_final.sql`**
+**Section takeaway - `08_abuse_detection_rules_final.sql`**
 
 The final abuse-detection output is a scored suspicious-user list for `ZPI_220801_115`. It combines multiple signals: high credited campaign discount, high credited immediate discount, high referral count, shared device/IP, and transfer-loop behavior. The result should be interpreted as a risk-review candidate list, not a confirmed fraud label.
 
@@ -913,14 +913,14 @@ Purpose: Answer required SQL business questions: category payment volume, first 
 Purpose: Scan all campaigns to identify which campaign deserves deeper investigation.
 
 07_selected_campaign_deep_dive.sql
-Purpose: Analyze the selected campaignâ€™s performance, cost, user concentration, referral behavior, and supporting risk signals.
+Purpose: Analyze the selected campaign's performance, cost, user concentration, referral behavior, and supporting risk signals.
 
 08_abuse_detection_rules_final.sql
 Purpose: Generate final scored suspicious-user list for risk review.
 ```
 
 **Overall project conclusion:**  
-The SQL process is clean because it moves from database understanding â†’ data validation â†’ business questions â†’ campaign discovery â†’ selected campaign deep dive â†’ final abuse detection. SQL is the right tool for this stage because the work requires joins, aggregations, cohort logic, campaign-level ranking, and user-level rule scoring. Later, the SQL outputs can be handed off to Python, Power BI, or a written report for visualization and business communication.
+The SQL process is clean because it moves from database understanding -> data validation -> business questions -> campaign discovery -> selected campaign deep dive -> final abuse detection. SQL is the right tool for this stage because the work requires joins, aggregations, cohort logic, campaign-level ranking, and user-level rule scoring. Later, the SQL outputs can be handed off to Python, Power BI, or a written report for visualization and business communication.
 
 
 
