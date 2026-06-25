@@ -1,0 +1,36 @@
+# ===============================
+# Sensitive / private data
+# ===============================
+
+data/raw/*
+data/processed/*
+data/output/*
+
+# Keep empty folder structure on GitHub
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/output/.gitkeep
+
+# Excel outputs with user IDs
+*.xlsx
+*.xls
+result.xlsx
+
+# Python / notebook temporary files
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Database files
+*.bak
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+# Visual Studio local metadata
+.vs/
