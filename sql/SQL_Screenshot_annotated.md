@@ -1,6 +1,7 @@
-# SQL Result Screenshots - ZaloPay Campaign Abuse Detection Project
+﻿# SQL Result Screenshots - ZaloPay Campaign Abuse Detection Project
 
 This document records the SQL result screenshots used during the analysis.  
+**Public privacy note:** Screenshots in the public repository use selective anonymization. Direct user/device/network identifiers such as `userID`, inviter/referee IDs, sender/receiver IDs, `deviceID`, and `userIP` are blurred, while aggregate metrics, dates, amounts, categories, and scores remain readable for portfolio review.
 Each screenshot is documented with:
 
 ```text
@@ -491,7 +492,7 @@ These checks helped clarify confusing table behavior and possible abuse signals 
 
 **Business interpretation:** This helped refine the logic: new account + early transaction is not abuse by itself. The stronger signal is high immediate discount extraction, especially with many discount rows.
 
-**Next step:** Separate immediate discount from later lifetime discount to reduce false positives.
+**Next step:** Separate immediate discount from later lifetime discount to reduce over-flagging risk.
 
 ---
 
@@ -851,43 +852,55 @@ The selected campaign is large, costly on a credited success-only basis, and sho
 
 ## `08_abuse_detection_rules_final.sql`
 
+**Percentile-based threshold support**
 
-**Final suspicious-user scored output**
+**Question answered:** Are the scoring thresholds reasonable compared with selected-campaign user behavior?
 
-**Question answered:** Which selected-campaign users should be prioritized for risk review
+![SQL result screenshot 063](../screenshots/public_blur/08_abuse_detection_rules_final/percentile_based_threshold_support.png)
 
-![SQL result screenshot 063](../screenshots/public_blur/08_abuse_detection_rules_final/final_suspicious_user_scored_output.png)
+**Key result:** The percentile table shows the distribution of campaign discount rows, credited campaign discount, immediate discount, invitees, shared device/IP exposure, and transfer-loop signals across 86,170 selected-campaign users.
 
-**Key result:** The output ranks users by `suspicion_score` and includes fixed promotion-cost signal columns such as `credited_campaign_discount_success_only`, `immediate_discount_0_1_day`, referral count, shared device/IP, transfer-loop count, and reason text.
+**Business interpretation:** This validates that the scoring thresholds are not arbitrary. For example, high immediate discount, high referral count, shared device behavior, and repeated transfer-loop signals are top-percentile behaviors rather than normal selected-campaign activity.
 
-**Business interpretation:** This is the final rule-based suspicious-user table. Users are not flagged by one weak signal alone; they are prioritized when multiple suspicious signals appear together.
-
-**Next step:** Use the full table for analyst review and export the required `userID` + `reason` columns if submitting `result.xlsx`.
+**Next step:** Apply the supported thresholds to create a scored suspicious-user review output.
 
 ---
 
-**Final output continuation / export view**
+**Final suspicious-user scoring output**
 
-**Question answered:** What should be exported as the final deliverable
+**Question answered:** Which selected-campaign users should be prioritized for risk review?
 
-![SQL result screenshot 064](../screenshots/public_blur/08_abuse_detection_rules_final/final_output_continuation.png)
+![SQL result screenshot 064](../screenshots/public_blur/08_abuse_detection_rules_final/final_scoring_output_part_1.png)
 
-![SQL result screenshot 065](../screenshots/public_blur/08_abuse_detection_rules_final/final_export_view.png)
+![SQL result screenshot 065](../screenshots/public_blur/08_abuse_detection_rules_final/final_scoring_output_part_2.png)
 
-**Key result:** The result contains the required user-level suspicious output and supporting columns for review.
+![SQL result screenshot 066](../screenshots/public_blur/08_abuse_detection_rules_final/final_scoring_output_part_3.png)
 
-**Business interpretation:** For the assessment, the strict deliverable can be reduced to `userID` and `reason`. For the portfolio, keeping `suspicion_score`, `risk_tier`, and signal columns is better for explanation.
+**Key result:** The output ranks users by `suspicion_score` and `risk_tier`, with supporting signal columns for credited campaign discount, immediate discount, referral count, shared device/IP exposure, transfer-loop count, and reason text aligned to the scoring thresholds.
 
-**Next step:** Use this output to estimate abuse impact and write prevention recommendations.
+**Business interpretation:** This is the final rule-based suspicious-user table. Users are prioritized when multiple suspicious signals appear together; the result is a risk-review candidate list, not a confirmed fraud label.
+
+**Next step:** Summarize the business impact of the suspicious-user group.
+
+---
+
+**Campaign impact summary**
+
+**Question answered:** How large is the suspicious-user issue from a campaign-cost perspective?
+
+![SQL result screenshot 067](../screenshots/public_blur/08_abuse_detection_rules_final/campaign_impact_summary.png)
+
+**Key result:** The selected campaign has 86,170 users, with 4,600 suspicious-review users. These users represent 5.34% of campaign users and account for 2,023,920,000 credited discount, or 28.90% of campaign discount exposure. The tier breakdown separates high-risk, medium-risk, and review users by count and credited discount.
+
+**Business interpretation:** The suspicious-user group is small relative to the full campaign population but accounts for a much larger share of credited promo cost. This supports prioritizing the flagged users for review and prevention-rule design.
+
+**Next step:** Use rule simulation to compare possible prevention or manual-review rules.
 
 ---
 
 **Section takeaway - `08_abuse_detection_rules_final.sql`**
 
-The final abuse-detection output is a scored suspicious-user list for `ZPI_220801_115`. It combines multiple signals: high credited campaign discount, high credited immediate discount, high referral count, shared device/IP, and transfer-loop behavior. The result should be interpreted as a risk-review candidate list, not a confirmed fraud label.
-
----
-
+The final abuse-detection process now moves from raw user features -> percentile-supported thresholds -> scored suspicious-user output -> campaign impact summary. The result is more defensible because the thresholds are checked against the selected campaign distribution before the final risk scoring is interpreted.
 ## Final SQL Workflow Summary
 
 ```text
@@ -920,7 +933,11 @@ Purpose: Generate final scored suspicious-user list for risk review.
 ```
 
 **Overall project conclusion:**  
+The final SQL exports use `selected_campaign_user_scored_features.csv` for the scored user-level table. This name is used because the file contains raw behavior features plus score columns, `risk_tier`, and `reason`. Rule simulation uses `low_score_users_impacted`, `low_score_impact_pct`, and `overflagging_risk_label` because the dataset has no confirmed fraud labels.
+
 The SQL process is clean because it moves from database understanding -> data validation -> business questions -> campaign discovery -> selected campaign deep dive -> final abuse detection. SQL is the right tool for this stage because the work requires joins, aggregations, cohort logic, campaign-level ranking, and user-level rule scoring. Later, the SQL outputs can be handed off to Python, Power BI, or a written report for visualization and business communication.
+
+
 
 
 
