@@ -7,23 +7,39 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 
+# Sheet name -> (source CSV written by 01_rule_simulation_storytelling.ipynb,
+#                short description of what the sheet is for in Power BI)
 CSV_SHEETS = [
-    ("campaign_overview.csv", "campaign_overview"),
-    ("campaign_daily_summary.csv", "campaign_daily_summary"),
-    ("campaign_promotion_breakdown.csv", "promotion_breakdown"),
-    ("selected_campaign_merchant_distribution.csv", "merchant_distribution"),
-    # sheet must stay named "user_features" — the Power BI model navigates to it by that name
-    ("selected_campaign_user_scored_features.csv", "user_features"),
-    ("suspicious_users_full.csv", "suspicious_users"),
-    ("abuse_impact_summary.csv", "abuse_impact"),
-    ("rule_simulation_summary.csv", "rule_simulation"),
-    ("threshold_percentile_summary.csv", "threshold_percentiles"),
-    ("retention_weekly_summary.csv", "weekly_retention"),
-    # --- NEW: date-slicer-friendly exports ---
-    ("campaign_daily_risk_summary.csv", "campaign_daily_risk_summary"),
-    ("campaign_user_daily_risk.csv", "campaign_user_daily_risk"),
-    ("promotion_daily_summary.csv", "promotion_daily_summary"),
-    ("merchant_daily_summary.csv", "merchant_daily_summary"),
+    (
+        "python_business_rule_simulation_summary.csv",
+        "py_rule_summary",
+        "Compare rule scenarios",
+        "Main chart/table source for Python rule simulation",
+    ),
+    (
+        "python_business_rule_recommendations.csv",
+        "py_recommendations",
+        "Show recommended action by rule",
+        "Use for rule decision table",
+    ),
+    (
+        "python_rule_sensitivity_grid.csv",
+        "py_sensitivity_grid",
+        "Threshold sensitivity page",
+        "Use slicers for rule_family and thresholds",
+    ),
+    (
+        "python_selected_thresholds.csv",
+        "py_selected_thresholds",
+        "Chosen threshold support",
+        "Small summary table",
+    ),
+    (
+        "python_sql_reconciliation_summary.csv",
+        "py_sql_reconciliation",
+        "QA/reconciliation page",
+        "Optional; use to prove Python matches SQL exports",
+    ),
 ]
 
 
@@ -65,15 +81,32 @@ def format_sheet(worksheet, row_count: int, column_count: int) -> None:
         worksheet.column_dimensions[column_letter].width = min(max(max_length + 2, 10), 45)
 
 
+def build_readme_frame() -> pd.DataFrame:
+    """Recreates the 'read_me' sheet describing each tab's source CSV and purpose."""
+    rows = [
+        {
+            "Sheet": sheet_name,
+            "Source CSV": csv_name,
+            "Use in Power BI": use_in_powerbi,
+            "Notes": notes,
+        }
+        for csv_name, sheet_name, use_in_powerbi, notes in CSV_SHEETS
+    ]
+    return pd.DataFrame(rows)
+
+
 def build_workbook() -> None:
+    # Python notebook writes its CSV outputs to data/output/python_rule_simulation/;
+    # the finished workbook goes to data/output/ alongside the SQL exports.
     output_dir = repo_root() / "data" / "output"
-    workbook_path = output_dir / "powerbi_outputs.xlsx"
+    input_dir = output_dir / "python_rule_simulation"
+    workbook_path = output_dir / "python_rule_simulation_powerbi.xlsx"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     summaries = []
     with pd.ExcelWriter(workbook_path, engine="openpyxl") as writer:
-        for csv_name, sheet_name in CSV_SHEETS:
-            csv_path = output_dir / csv_name
+        for csv_name, sheet_name, _use_in_powerbi, _notes in CSV_SHEETS:
+            csv_path = input_dir / csv_name
             frame = read_csv(csv_path)
             frame.to_excel(writer, sheet_name=sheet_name, index=False)
 
@@ -82,6 +115,13 @@ def build_workbook() -> None:
 
             summaries.append((sheet_name, csv_name, len(frame), len(frame.columns)))
 
+        # read_me sheet last, built in-memory (not from a CSV) so it always
+        # reflects exactly what's in CSV_SHEETS above.
+        readme = build_readme_frame()
+        readme.to_excel(writer, sheet_name="read_me", index=False)
+        readme_ws = writer.book["read_me"]
+        format_sheet(readme_ws, len(readme), len(readme.columns))
+
     for sheet_name, csv_name, row_count, column_count in summaries:
         print(
             f"sheet name: {sheet_name} | "
@@ -89,7 +129,7 @@ def build_workbook() -> None:
             f"row count: {row_count} | "
             f"column count: {column_count}"
         )
-
+    print("sheet name: read_me | generated in-memory (not from a CSV)")
     print(f"workbook: {workbook_path}")
 
 

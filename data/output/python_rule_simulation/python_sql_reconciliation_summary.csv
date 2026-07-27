@@ -1,0 +1,21 @@
+check_name,python_value,sql_value,difference,status
+suspicious user count,3671.0,3671.0,0.0,match
+suspicious credited discount,1887180000.0,1887180000.0,0.0,match
+abuse impact: total_scored_users,86170.0,86170.0,0.0,match
+abuse impact: total_suspicious_users,3671.0,3671.0,0.0,match
+abuse impact: suspicious_user_rate_pct,4.260183358477429,4.26,0.00018335847742889655,match
+abuse impact: total_campaign_discount,7003955000.0,7003955000.0,0.0,match
+abuse impact: discount_used_by_suspicious_users,1887180000.0,1887180000.0,0.0,match
+abuse impact: share_of_campaign_discount_pct,26.944490648497883,26.94,0.004490648497881722,match
+rule simulation: SQL baseline: referral farming + high discount - users impacted,1080.0,1080.0,0.0,match
+rule simulation: SQL baseline: referral farming + high discount - promo cost at risk,1011790000.0,1011790000.0,0.0,match
+rule simulation: SQL baseline: referral farming + high discount - low-score users impacted,0.0,0.0,0.0,match
+rule simulation: SQL baseline: immediate high discount - users impacted,1193.0,1193.0,0.0,match
+rule simulation: SQL baseline: immediate high discount - promo cost at risk,968360000.0,968360000.0,0.0,match
+rule simulation: SQL baseline: immediate high discount - low-score users impacted,0.0,0.0,0.0,match
+rule simulation: SQL baseline: transfer loop + campaign discount - users impacted,2866.0,2866.0,0.0,match
+rule simulation: SQL baseline: transfer loop + campaign discount - promo cost at risk,751515000.0,751515000.0,0.0,match
+rule simulation: SQL baseline: transfer loop + campaign discount - low-score users impacted,1843.0,1843.0,0.0,match
+rule simulation: SQL baseline: shared device >= 10 users - users impacted,23.0,23.0,0.0,match
+rule simulation: SQL baseline: shared device >= 10 users - promo cost at risk,4240000.0,4240000.0,0.0,match
+rule simulation: SQL baseline: shared device >= 10 users - low-score users impacted,3.0,3.0,0.0,match

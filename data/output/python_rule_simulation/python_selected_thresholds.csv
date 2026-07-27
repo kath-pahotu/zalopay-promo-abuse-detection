@@ -1,0 +1,3 @@
+rule_family,threshold_1_name,threshold_1_value,threshold_2_name,threshold_2_value,users_flagged,user_share_pct,discount_exposure,discount_share_pct,low_score_users_impacted,low_score_impact_pct
+new_account_extraction,immediate_discount_0_1_day,200000,immediate_discount_rows_0_1_day,10,1217,1.4123244748752466,980135000,13.994021949027372,14,1.1503697617091209
+referral_farming,total_invitees,20,credited_campaign_discount_success_only,100000,1147,1.3310897063943368,1030480000,14.712830108131763,0,0.0

@@ -1,32 +1,10 @@
-﻿# Sensitive / private data excluded from public repo
-data/raw/*
-data/processed/*
-data/output/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/output/.gitkeep
-screenshots/private_raw/
-sql/SQL_Screenshot_annotated_private.md
-
-# Excel outputs with user IDs
-*.xlsx
-*.xls
-result.xlsx
-
-# Python / notebook temporary files
-.ipynb_checkpoints/
-__pycache__/
-*.pyc
-
-# Database files
-*.bak
-*.db
-*.sqlite
-*.mdf
-*.ldf
-
-# OS / editor files
+# OS / editor
 .DS_Store
 Thumbs.db
 .vscode/
 .vs/
+
+# Python
+.ipynb_checkpoints/
+__pycache__/
+*.pyc

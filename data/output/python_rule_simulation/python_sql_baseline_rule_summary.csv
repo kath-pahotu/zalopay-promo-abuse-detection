@@ -1,0 +1,5 @@
+rule_scenario,users_flagged,user_share_pct,discount_exposure,discount_share_pct,avg_discount_per_flagged_user,low_score_users_impacted,low_score_impact_pct,high_risk_users,medium_risk_users,review_users,rule_definition
+SQL baseline: referral farming + high discount,1080,1.2533364279911803,1011790000,14.445980877946818,936842.5925925926,0,0.0,6,564,510,total invitees >= 20 and credited campaign discount >= 500K
+SQL baseline: immediate high discount,1193,1.3844725542532204,968360000,13.825902650716632,811701.5926236379,0,0.0,2,438,753,immediate discount 0-1 day >= 500K and immediate discount rows >= 10
+SQL baseline: transfer loop + campaign discount,2866,3.325983520946965,751515000,10.72986619702725,262217.37613398465,1843,64.30565247732031,5,147,2714,transfer loop count >= 1 and credited campaign discount >= 100K
+SQL baseline: shared device >= 10 users,23,0.026691423929441804,4240000,0.06053722503928138,184347.8260869565,3,13.043478260869565,0,3,20,max users per device >= 10

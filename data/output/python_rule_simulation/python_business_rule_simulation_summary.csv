@@ -1,0 +1,8 @@
+rule_scenario,users_flagged,user_share_pct,discount_exposure,discount_share_pct,avg_discount_per_flagged_user,low_score_users_impacted,low_score_impact_pct,high_risk_users,medium_risk_users,review_users,rule_definition
+Broad monitoring rule,19332,22.434722061042127,4764205000,68.02163920242205,246441.39250982826,16137,83.4729981378026,6,578,18748,credited discount >= 100K or shared-device signal or transfer loop count >= 3
+Medium balanced rule,1994,2.314030405013346,1673050000,23.887218007540024,839042.1263791374,0,0.0,6,576,1412,credited discount >= 500K and at least 2 total risk signals; this means high discount plus at least one additional signal
+Referral farming rule,1080,1.2533364279911803,1011790000,14.445980877946818,936842.5925925926,0,0.0,6,564,510,total invitees >= 20 and credited discount >= 500K
+New-account extraction rule,1193,1.3844725542532204,968360000,13.825902650716632,811701.5926236379,0,0.0,2,438,753,immediate discount 0-1 day >= 500K and immediate discount rows >= 10
+Transfer-loop review rule,537,0.6231867239178368,180165000,2.572332346509936,335502.7932960894,0,0.0,5,71,461,transfer loop count >= 3 and credited discount >= 100K
+Shared device rule,23,0.026691423929441804,4240000,0.06053722503928138,184347.8260869565,3,13.043478260869565,0,3,20,max users per device >= 10
+Strict multi-signal rule,4,0.004641986770337704,3295000,0.047044848232177396,823750.0,0,0.0,2,1,1,"credited discount >= 500K, immediate discount signal, and shared device or shared IP signal"

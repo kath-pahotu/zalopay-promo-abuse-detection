@@ -1,0 +1,5 @@
+﻿rule_name,users_impacted,promo_cost_at_risk_or_saved,low_score_users_impacted,low_score_impact_pct,overflagging_risk_label
+Manual review: invitees >= 20 and campaign discount >= 500K,1080,1011790000,0,0.00,Lower over-flagging risk
+Block: immediate discount >= 500K within 0-1 day and discount rows >= 10,1193,968360000,0,0.00,Lower over-flagging risk
+Manual review: transfer loop exists and campaign discount >= 100K,2866,751515000,1843,64.31,High over-flagging risk
+Block: same device used by >= 10 users,23,4240000,3,13.04,Medium over-flagging risk

@@ -1,69 +1,124 @@
-# ZaloPay Promo Abuse Detection - Public Portfolio
+# ZaloPay Promotion-Abuse Detection — SQL → Python → Power BI
 
-Public portfolio version of a DA/BI project analyzing promotion-abuse risk in a ZaloPay campaign dataset. This repo contains public-safe SQL, anonymized/aggregated outputs, and blurred screenshots for storytelling.
+> End-to-end analytics that finds users extracting a ZaloPay promotion budget, quantifies the financial
+> exposure, and recommends a review rule — built across **SQL Server → Python → Power BI**.
 
-## Project Objective
+> **Note:** all "suspicious" labels are a **rule-based review score, not confirmed fraud.** The dataset has no
+> confirmed fraud/bot labels, so results are review-prioritization signals, validated by SQL↔Python
+> reconciliation — not ground truth.
 
-Show an end-to-end analyst workflow: explore campaign data, identify suspicious promotion usage, quantify business exposure, and design practical review/prevention rules.
+---
 
-The project focuses on campaign `ZPI_220801_115` and answers:
+## TL;DR
 
-- Which campaigns deserve deeper abuse investigation?
-- Where did credited promotion discount concentrate?
-- Which risk signals appear at user level: immediate reward extraction, referrals, shared device/IP, and transfer loops?
-- How much campaign discount is attached to suspicious-review users?
-- Which rules are practical for monitoring, manual review, or controlled blocking tests?
+ZaloPay ran a large cashback/voucher **promotion campaign** (`ZPI_220801_115`, 73 sub-campaigns). This project
+scores every campaign user for **promo-abuse risk** on six behavioural signals, stress-tests candidate review
+rules in Python, and surfaces the decision in a 5-page Power BI dashboard.
 
-## Repository Structure
+**Headline result:** **4.26% of scored users (3,671 of 86,170) absorb 26.94% of the credited promo budget
+(≈1.89bn of 7.00bn ₫).** Promo cost is highly concentrated (one promotion, `Ref_CB_50K`, = **74%** of spend),
+and a **"medium balanced" review rule** flags 1,994 users (2.3% review workload) while capturing 23.9% of the
+at-risk cost — recommended for **shadow-mode / high-priority manual review**, not automated blocking.
 
-```text
-data/
-  output/                      public-safe/anonymized output tables
-screenshots/
-  public_blur/                 redacted SQL result screenshots
-sql/
-  00_database_overview.sql
-  01_table_schema_check.sql
-  02_sample_all_tables.sql
-  03_data_quality_check.sql
-  04_relationship_check.sql
-  05_business_questions.sql
-  06_campaign_discovery_scan.sql
-  07_selected_campaign_deep_dive.sql
-  08_abuse_detection_rules_final.sql
-  09_powerbi_export_queries.sql
-  SQL_Screenshot_annotated.md
-scripts/
-  helper scripts for public asset preparation
+🔗 **Live dashboard walkthrough (YouTube):** https://youtu.be/_UaicJaSGOs · 🎞️ **Presentation:**
+[case-study deck (PDF)](presentation/ZaloPay_Promotion_Abuse_Presentation.pdf) · **Case studies:**
+[SQL](docs/01_sql_stage.md) · [Python](docs/02_python_stage.md) · [Power BI](docs/03_powerbi_stage.md) ·
+[Insights](docs/04_insights.md)
+
+---
+
+## The business problem
+
+Promotions drive growth but attract **extractors** — users who farm cashback through referral rings, shared
+devices/IPs, reciprocal transfer loops, and rapid discount redemption. Unmeasured, a promotion's budget quietly
+leaks to a small group who won't retain. Questions answered:
+
+1. How big is the promotion, and where does the money go?
+2. Which users behave like extractors, and *why*?
+3. How much budget is exposed to them?
+4. What review rule balances **coverage vs. review workload**?
+5. Did the spend buy lasting users?
+
+## Headline numbers
+
+| Question | Answer | Source |
+|---|---|---:|
+| Campaign size | 254,309 transactions · 90,555 users · 76.01% success | `campaign_overview` |
+| Promo cost | **7.00bn ₫** credited (success-only) | `campaign_overview` |
+| Cost concentration | **74.02%** in one promotion (`Ref_CB_50K`) | `campaign_promotion_breakdown` |
+| Scored population | **86,170** users (≥1 successful campaign txn) | `abuse_impact_summary` |
+| Suspicious users | **3,671 (4.26%)** score ≥ 3 | scoring model |
+| Their share of cost | **26.94%** (≈1.89bn ₫) | `abuse_impact_summary` |
+| Peak daily exposure | **40.70%** of daily promo cost (22 Jul) | `campaign_daily_risk_summary` |
+| Recommended rule | Medium-balanced: 1,994 flagged · 23.9% captured · 0% low-score proxy | `rule_simulation` |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[(SQL Server<br/>ZaloPay data)] -->|"00-05 trust,<br/>business Qs"| B[SQL<br/>06 campaign pick]
+    B -->|"07 features"| C[SQL 07b VIEW<br/>single feature source]
+    C -->|"08 scoring<br/>6 signals"| D[SQL 09<br/>Power BI exports]
+    D -->|14 CSVs| E[Python notebook<br/>rule simulation +<br/>sensitivity + reconcile]
+    E -->|"summary CSVs<br/>+ workbooks"| F[Power BI<br/>5-page dashboard]
+    D --> F
 ```
 
-## Analysis Flow
+| Stage | Tool | Why |
+|---|---|---|
+| Trust → business Qs → campaign selection → user scoring | **SQL Server (T-SQL)** | joins, window functions, cohort logic, rule scoring at scale |
+| Rule simulation, sensitivity, SQL↔Python reconciliation | **Python (pandas)** | fast what-if experimentation, reproducible validation |
+| Communication & decision | **Power BI** | interactive, stakeholder-facing, decision-oriented |
 
-1. Database overview and schema checks.
-2. Data quality checks for duplicates, dates, missing values, and platform behavior.
-3. Relationship validation across transaction, transfer, campaign, app, referral, and user tables.
-4. Business questions on campaign cost, merchant categories, and retention.
-5. Campaign discovery scan to choose the highest-priority campaign.
-6. Selected-campaign deep dive into promotion, merchant, referral, device/IP, and transfer signals.
-7. Final abuse-detection SQL with percentile threshold support, scoring, campaign impact summary, and rule simulation.
-8. Power BI-ready export queries for dashboard handoff.
+## The 6 behavioural signals
 
-## Public Outputs
+Each user earns 0–2 points per signal → a 0–11 `suspicion_score` → risk tiers (High ≥7 · Medium 5–6 · Review
+3–4 · Low 0–2).
 
-Public `data/output/` is designed for portfolio use and should avoid raw user IDs. User-level outputs use anonymized keys when needed.
+| Signal | Flags | Rationale |
+|---|---|---|
+| Immediate discount (0–1 day) | fast, high redemption after joining | extraction |
+| Credited discount | very high campaign discount captured | budget concentration |
+| Referral | many invitees | referral farming |
+| Device sharing | many users per device | multi-account / bot |
+| IP sharing | many users per IP | multi-account / bot |
+| Transfer loop | reciprocal A→B→A transfers | collusion / wash activity |
 
-Main handoff files:
+*(The transfer-loop signal was the subject of a real bug fix — a self-join cross-product had inflated it to
+500,057 before it was corrected to a distinct-partner max of 158. See the [SQL case study](docs/01_sql_stage.md).)*
 
-- `selected_campaign_user_scored_features.csv`: scored user-level table with anonymized user keys
-- `suspicious_users_full.csv`: anonymized suspicious-review table
-- `abuse_impact_summary.csv`: campaign exposure summary
-- `rule_simulation_summary.csv`: rule workload and exposure comparison
-- `threshold_percentile_summary.csv`: evidence for scoring thresholds
+## Repository structure
 
-## Important Label Limitation
+```text
+sql/              00–09 T-SQL: trust → business Qs → campaign pick → features (07b view) → scoring → exports
+notebook/         01_rule_simulation_storytelling.ipynb — rule simulation, sensitivity, reconciliation
+scripts/          export, verify, orchestration, and portfolio-asset helpers
+data/output/      aggregated SQL/Python handoff files (no individual-user rows)
+dashboard/        Power BI theme (the interactive report is shown in the video walkthrough above)
+docs/             per-stage case studies (SQL / Python / Power BI / insights)   ← recruiter-facing
+presentation/     case-study deck (PDF)
+```
 
-The dataset has no confirmed fraud or bot labels. `suspicion_score` is a rule-based review score, not a ground-truth fraud label. For that reason, this project uses `low_score_users_impacted`, `low_score_impact_pct`, and over-flagging risk language instead of claiming confirmed error rates.
+> **Privacy note:** this public repository contains **code, docs, aggregated outputs, and the presentation**
+> only. Individual user-level rows and the raw `.pbix` (which embeds them) are kept out; the dashboard is
+> demonstrated in the video walkthrough linked above.
 
-## Portfolio Story
+## Skills demonstrated
 
-SQL does the source-of-truth work: joins, validation, feature building, scoring, and export tables. Python extends the work with reconciliation, flexible rule simulation, sensitivity analysis, and charts. Power BI is the final communication layer for executives and business users.
+`SQL` (CTEs, window functions, self-joins, percentiles, cohort retention, rule scoring) · `Python/pandas`
+(simulation, sensitivity, reconciliation testing) · `Power BI` (modelling, DAX, drill paths, conditional
+formatting, navigation, publishing) · **data storytelling**, **metric-consistency / trust engineering**,
+**honest framing of an unlabeled problem**.
+
+## Limitations & roadmap
+
+No confirmed fraud labels → rule-based review score, validated by reconciliation, not outcome labels. Retention
+is overall-payment context, not campaign-attributed. **Next:** network/ring detection · velocity features ·
+a second-opinion anomaly model (Isolation Forest) · a what-if threshold simulator · formal validation once
+labels exist.
+
+---
+
+*Portfolio project analysing a real ZaloPay promotion campaign dataset. "Suspicious" = rule-based review score,
+not confirmed fraud. This public version includes code, documentation, aggregated outputs, and the presentation
+— individual user-level data is intentionally excluded.*

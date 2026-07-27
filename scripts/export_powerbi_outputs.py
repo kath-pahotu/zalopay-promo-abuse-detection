@@ -16,6 +16,11 @@ OUTPUT_FILES = [
     "rule_simulation_summary.csv",
     "threshold_percentile_summary.csv",
     "retention_weekly_summary.csv",
+    # --- NEW: date-slicer-friendly Power BI exports ---
+    "campaign_daily_risk_summary.csv",
+    "campaign_user_daily_risk.csv",
+    "promotion_daily_summary.csv",
+    "merchant_daily_summary.csv",
 ]
 
 
@@ -134,6 +139,195 @@ def transfer_loop_counts(transfers):
 
     return pd.DataFrame(
         {"userID": list(counts.keys()), "transfer_loop_count": list(counts.values())}
+    )
+
+
+# =========================================================
+# NEW: shared helper for the two date-sliced risk exports
+# Mirrors the CASE/COALESCE logic in 09_powerbi_export_queries.sql
+# (daily suspicious vs non-suspicious split + user-date risk table)
+# =========================================================
+def add_transaction_risk_labels(transactions, scored):
+    """Left-join per-user suspicion_score onto every transaction row
+    (including failed ones) and derive risk_group / risk_tier_group.
+    Users with no score (e.g. zero successful transactions) default to 0,
+    matching COALESCE(a.suspicion_score, 0) in the SQL version.
+    """
+    labeled = transactions.merge(
+        scored[["userID", "suspicion_score"]], on="userID", how="left"
+    )
+    labeled["suspicion_score"] = labeled["suspicion_score"].fillna(0)
+
+    labeled["risk_group"] = "Non-suspicious"
+    labeled.loc[labeled["suspicion_score"] >= 3, "risk_group"] = "Suspicious"
+
+    labeled["risk_tier_group"] = "Lower-risk"
+    labeled.loc[labeled["suspicion_score"] >= 3, "risk_tier_group"] = "Review"
+    labeled.loc[labeled["suspicion_score"] >= 6, "risk_tier_group"] = "Medium risk"
+    labeled.loc[labeled["suspicion_score"] >= 9, "risk_tier_group"] = "High risk"
+
+    labeled["txn_date"] = labeled["reqDate"].dt.date
+    return labeled
+
+
+def build_campaign_daily_risk_summary(selected, scored):
+    """Daily suspicious vs non-suspicious split -> campaign_daily_risk_summary.csv"""
+    labeled = add_transaction_risk_labels(selected, scored)
+    group_cols = ["txn_date", "risk_group", "risk_tier_group"]
+
+    summary = (
+        labeled.groupby(group_cols, dropna=False)
+        .agg(
+            transaction_rows=("transID", "size"),
+            unique_users=("userID", "nunique"),
+            successful_rows=("transStatus", lambda s: int((s == 1).sum())),
+        )
+        .reset_index()
+    )
+    credited = (
+        labeled[labeled["transStatus"] == 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("credited_discount_success_only")
+    )
+    non_success = (
+        labeled[labeled["transStatus"] != 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("non_success_discount_amount")
+    )
+    summary = summary.merge(credited, on=group_cols, how="left").merge(
+        non_success, on=group_cols, how="left"
+    )
+    summary[["credited_discount_success_only", "non_success_discount_amount"]] = summary[
+        ["credited_discount_success_only", "non_success_discount_amount"]
+    ].fillna(0)
+    return summary.sort_values(group_cols)
+
+
+def build_campaign_user_daily_risk(selected, scored):
+    """User-date risk table -> campaign_user_daily_risk.csv
+    Grain: one row per user per date, for DISTINCTCOUNT users by any date range in Power BI.
+    """
+    labeled = add_transaction_risk_labels(selected, scored)
+    group_cols = ["txn_date", "userID", "risk_group", "risk_tier_group"]
+
+    summary = (
+        labeled.groupby(group_cols, dropna=False)
+        .agg(
+            transaction_rows=("transID", "size"),
+            successful_rows=("transStatus", lambda s: int((s == 1).sum())),
+        )
+        .reset_index()
+    )
+    credited = (
+        labeled[labeled["transStatus"] == 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("credited_discount_success_only")
+    )
+    summary = summary.merge(credited, on=group_cols, how="left")
+    summary["credited_discount_success_only"] = summary[
+        "credited_discount_success_only"
+    ].fillna(0)
+
+    summary = summary[
+        [
+            "txn_date",
+            "userID",
+            "risk_group",
+            "risk_tier_group",
+            "credited_discount_success_only",
+            "successful_rows",
+            "transaction_rows",
+        ]
+    ]
+    return summary.sort_values(["txn_date", "risk_group", "userID"])
+
+
+def build_promotion_daily_summary(selected):
+    """Promotion performance dynamic by date slicer -> promotion_daily_summary.csv"""
+    daily = selected.copy()
+    daily["txn_date"] = daily["reqDate"].dt.date
+    group_cols = ["txn_date", "campaignID", "promotionName", "promotion_type"]
+
+    summary = (
+        daily.groupby(group_cols, dropna=False)
+        .agg(
+            transaction_rows=("transID", "size"),
+            unique_users=("userID", "nunique"),
+            successful_rows=("transStatus", lambda s: int((s == 1).sum())),
+            gross_discount_all_rows=("discountAmount", "sum"),
+        )
+        .reset_index()
+    )
+    credited = (
+        daily[daily["transStatus"] == 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("credited_discount_success_only")
+    )
+    non_success = (
+        daily[daily["transStatus"] != 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("non_success_discount_amount")
+    )
+    summary = summary.merge(credited, on=group_cols, how="left").merge(
+        non_success, on=group_cols, how="left"
+    )
+    summary[["credited_discount_success_only", "non_success_discount_amount"]] = summary[
+        ["credited_discount_success_only", "non_success_discount_amount"]
+    ].fillna(0)
+    return summary.sort_values(
+        ["txn_date", "credited_discount_success_only"], ascending=[True, False]
+    )
+
+
+def build_merchant_daily_summary(selected, app):
+    """Merchant/category performance dynamic by date slicer -> merchant_daily_summary.csv"""
+    daily = selected.merge(app, on="appID", how="left")
+    daily[["reportCat", "reportSubCat", "appName"]] = daily[
+        ["reportCat", "reportSubCat", "appName"]
+    ].fillna("Non-payment/Unknown")
+
+    daily["payment_group"] = "Payment / merchant"
+    daily.loc[daily["reportCat"] == "Non-payment/Unknown", "payment_group"] = (
+        "Non-payment / reward / unknown"
+    )
+    daily["txn_date"] = daily["reqDate"].dt.date
+    group_cols = ["txn_date", "reportCat", "reportSubCat", "appName", "payment_group"]
+
+    summary = (
+        daily.groupby(group_cols, dropna=False)
+        .agg(
+            transaction_rows=("transID", "size"),
+            unique_users=("userID", "nunique"),
+            successful_rows=("transStatus", lambda s: int((s == 1).sum())),
+            total_amount=("amount", "sum"),
+        )
+        .reset_index()
+    )
+    credited = (
+        daily[daily["transStatus"] == 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("credited_discount_success_only")
+    )
+    non_success = (
+        daily[daily["transStatus"] != 1]
+        .groupby(group_cols, dropna=False)["discountAmount"]
+        .sum()
+        .rename("non_success_discount_amount")
+    )
+    summary = summary.merge(credited, on=group_cols, how="left").merge(
+        non_success, on=group_cols, how="left"
+    )
+    summary[["credited_discount_success_only", "non_success_discount_amount"]] = summary[
+        ["credited_discount_success_only", "non_success_discount_amount"]
+    ].fillna(0)
+    return summary.sort_values(
+        ["txn_date", "credited_discount_success_only"], ascending=[True, False]
     )
 
 
@@ -513,7 +707,7 @@ def build_outputs(raw_dir, campaign_code, privacy):
     impact = pd.DataFrame(
         [
             {
-                "total_campaign_users": len(scored),
+                "total_scored_users": len(scored),
                 "total_suspicious_users": len(suspicious),
                 "suspicious_user_rate_pct": round(len(suspicious) * 100 / max(len(scored), 1), 2),
                 "total_campaign_discount": int(
@@ -641,6 +835,12 @@ def build_outputs(raw_dir, campaign_code, privacy):
         ["cohort_week", "week_number", "cohort_users", "retained_users", "retention_rate_pct"]
     ].sort_values(["cohort_week", "week_number"])
 
+    # --- NEW: the 4 additional date-slicer-friendly exports ---
+    campaign_daily_risk_summary = build_campaign_daily_risk_summary(selected, scored)
+    campaign_user_daily_risk = build_campaign_user_daily_risk(selected, scored)
+    promotion_daily_summary = build_promotion_daily_summary(selected)
+    merchant_daily_summary = build_merchant_daily_summary(selected, app)
+
     return {
         "campaign_overview.csv": overview,
         "campaign_daily_summary.csv": daily,
@@ -652,6 +852,11 @@ def build_outputs(raw_dir, campaign_code, privacy):
         "rule_simulation_summary.csv": rule_summary,
         "threshold_percentile_summary.csv": percentile,
         "retention_weekly_summary.csv": retention,
+        # --- NEW ---
+        "campaign_daily_risk_summary.csv": campaign_daily_risk_summary,
+        "campaign_user_daily_risk.csv": campaign_user_daily_risk,
+        "promotion_daily_summary.csv": promotion_daily_summary,
+        "merchant_daily_summary.csv": merchant_daily_summary,
     }
 
 
