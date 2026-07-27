@@ -1,4 +1,4 @@
-﻿txn_date,transaction_rows,unique_users,successful_rows,gross_discount_all_rows,credited_discount_success_only,non_success_discount_amount
+txn_date,transaction_rows,unique_users,successful_rows,gross_discount_all_rows,credited_discount_success_only,non_success_discount_amount
 2022-06-01,1574,968,1406,51020000,47510000,3510000
 2022-06-02,1395,891,1275,45905000,43435000,2470000
 2022-06-03,1849,1051,1666,61720000,58300000,3420000

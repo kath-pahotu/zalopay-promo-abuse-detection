@@ -1,6 +1,6 @@
 # SQL — ZaloPay Campaign Abuse Detection
 
-This folder holds the SQL analysis for campaign `ZPI_220801_115`, run in order `00 → 09`.
+This folder holds the SQL analysis for campaign `CAMP_A`, run in order `00 → 09`.
 
 > **Note:** for the narrative walkthrough of what each query establishes, see the per-stage case study
 > in **[`../docs/01_sql_stage.md`](../docs/01_sql_stage.md)**.
@@ -14,7 +14,7 @@ This folder holds the SQL analysis for campaign `ZPI_220801_115`, run in order `
 03_data_quality_check.sql       Row counts, duplicate keys, dates, nulls, status, early signal scouting
 04_relationship_check.sql       Joins are reliable; campaignID 0 = non-campaign
 05_business_questions.sql       Category volume · first 100K cumulative discount · weekly retention
-06_campaign_discovery_scan.sql  Priority-score all campaigns -> select ZPI_220801_115
+06_campaign_discovery_scan.sql  Priority-score all campaigns -> select CAMP_A
 07_selected_campaign_deep_dive.sql  Per-user signals inside the selected campaign
 07b_abuse_user_features_view.sql    Create dbo.vw_abuse_user_features (shared feature build; run once before 08/09)
 08_abuse_detection_rules_final.sql  Percentile support -> scoring -> impact -> rule simulation

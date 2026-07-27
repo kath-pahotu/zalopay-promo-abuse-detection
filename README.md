@@ -11,17 +11,16 @@
 
 ## TL;DR
 
-ZaloPay ran a large cashback/voucher **promotion campaign** (`ZPI_220801_115`, 73 sub-campaigns). This project
+ZaloPay ran a large cashback/voucher **promotion campaign** (`CAMP_A`, 73 sub-campaigns). This project
 scores every campaign user for **promo-abuse risk** on six behavioural signals, stress-tests candidate review
 rules in Python, and surfaces the decision in a 5-page Power BI dashboard.
 
 **Headline result:** **4.26% of scored users (3,671 of 86,170) absorb 26.94% of the credited promo budget
-(≈1.89bn of 7.00bn ₫).** Promo cost is highly concentrated (one promotion, `Ref_CB_50K`, = **74%** of spend),
+(≈1.89bn of 7.00bn ₫).** Promo cost is highly concentrated (one promotion, `PROMO_45`, = **74%** of spend),
 and a **"medium balanced" review rule** flags 1,994 users (2.3% review workload) while capturing 23.9% of the
 at-risk cost — recommended for **shadow-mode / high-priority manual review**, not automated blocking.
 
-🔗 **Live dashboard walkthrough (YouTube):** https://youtu.be/_UaicJaSGOs · 🎞️ **Presentation:**
-[case-study deck (PDF)](presentation/ZaloPay_Promotion_Abuse_Presentation.pdf) · **Case studies:**
+🔗 **Live dashboard walkthrough (YouTube):** https://youtu.be/_UaicJaSGOs · **Case studies:**
 [SQL](docs/01_sql_stage.md) · [Python](docs/02_python_stage.md) · [Power BI](docs/03_powerbi_stage.md) ·
 [Insights](docs/04_insights.md)
 
@@ -45,7 +44,7 @@ leaks to a small group who won't retain. Questions answered:
 |---|---|---:|
 | Campaign size | 254,309 transactions · 90,555 users · 76.01% success | `campaign_overview` |
 | Promo cost | **7.00bn ₫** credited (success-only) | `campaign_overview` |
-| Cost concentration | **74.02%** in one promotion (`Ref_CB_50K`) | `campaign_promotion_breakdown` |
+| Cost concentration | **74.02%** in one promotion (`PROMO_45`) | `campaign_promotion_breakdown` |
 | Scored population | **86,170** users (≥1 successful campaign txn) | `abuse_impact_summary` |
 | Suspicious users | **3,671 (4.26%)** score ≥ 3 | scoring model |
 | Their share of cost | **26.94%** (≈1.89bn ₫) | `abuse_impact_summary` |
@@ -96,7 +95,6 @@ scripts/          export, verify, orchestration, and portfolio-asset helpers
 data/output/      aggregated SQL/Python handoff files (no individual-user rows)
 dashboard/        Power BI theme (the interactive report is shown in the video walkthrough above)
 docs/             per-stage case studies (SQL / Python / Power BI / insights)   ← recruiter-facing
-presentation/     case-study deck (PDF)
 ```
 
 > **Privacy note:** this public repository contains **code, docs, aggregated outputs, and the presentation**

@@ -1,4 +1,4 @@
-﻿txn_date,risk_group,risk_tier_group,transaction_rows,unique_users,successful_rows,credited_discount_success_only,non_success_discount_amount
+txn_date,risk_group,risk_tier_group,transaction_rows,unique_users,successful_rows,credited_discount_success_only,non_success_discount_amount
 2022-06-01,Non-suspicious,Lower-risk,1445,926,1285,42780000,3280000
 2022-06-01,Suspicious,Medium risk,9,2,9,410000,0
 2022-06-01,Suspicious,Review,120,40,112,4320000,230000

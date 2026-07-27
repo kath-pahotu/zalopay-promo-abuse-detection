@@ -9,7 +9,7 @@ a scored, per-user abuse table and the exports that feed Python and Power BI.
 |---|---|---|
 | `00–04` | **Data trust**: row counts, keys, join validity, date ranges, success definition | joinable; `campaignID = 0` = non-campaign; success = `transStatus = 1` |
 | `05` | **Business questions**: category volumes, 100K-discount crossing, weekly retention | assessment answers |
-| `06` | **Campaign selection**: priority score across all campaigns | `ZPI_220801_115` is the top-risk, top-cost campaign |
+| `06` | **Campaign selection**: priority score across all campaigns | `CAMP_A` is the top-risk, top-cost campaign |
 | `07` | **Deep dive**: per-user behavioural features inside the campaign | 6 raw signals per user |
 | `07b` | **Single feature source** — a `VIEW` all downstream queries share | `vw_abuse_user_features` |
 | `08` | **Scoring**: `suspicion_score`, `risk_tier`, `reason` | 3,671 suspicious of 86,170 scored |

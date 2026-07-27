@@ -6,7 +6,7 @@ GO
 
    Purpose:
    - Build the user-level abuse feature table for campaign
-     ZPI_220801_115 in ONE place, so 08 (scoring) and 09
+     CAMP_A in ONE place, so 08 (scoring) and 09
      (Power BI export) both consume the same definition and
      cannot drift apart.
 
@@ -35,7 +35,7 @@ WITH selected_campaign_transactions AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
       AND t.transStatus = 1
 ),
 selected_campaign_users AS (

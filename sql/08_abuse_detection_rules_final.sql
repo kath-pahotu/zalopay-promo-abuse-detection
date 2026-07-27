@@ -6,7 +6,7 @@ GO
 
    Purpose:
    - Final suspicious-user detection for selected campaign:
-       campaignCode = ZPI_220801_115
+       campaignCode = CAMP_A
    - This file comes AFTER:
        06_CAMPAIGN_DISCOVERY_SCAN
        07_SELECTED_CAMPAIGN_DEEP_DIVE

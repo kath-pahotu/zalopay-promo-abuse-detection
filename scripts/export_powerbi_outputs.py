@@ -864,7 +864,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--source-root", type=Path)
-    parser.add_argument("--campaign-code", default="ZPI_220801_115")
+    parser.add_argument("--campaign-code", default="CAMP_A")
     parser.add_argument("--privacy", choices=["private", "public"], default="private")
     args = parser.parse_args()
 

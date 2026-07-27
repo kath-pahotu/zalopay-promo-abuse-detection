@@ -25,7 +25,7 @@ GO
    10. retention_weekly_summary.csv
    ============================================================ */
 
-DECLARE @CampaignCode VARCHAR(50) = 'ZPI_220801_115';
+DECLARE @CampaignCode VARCHAR(50) = 'CAMP_A';
 
 DROP TABLE IF EXISTS #selected_campaign_transactions;
 DROP TABLE IF EXISTS #abuse_user_features;

@@ -5,7 +5,7 @@ GO
    07_SELECTED_CAMPAIGN_DEEP_DIVE_FIXED
 
    Purpose:
-   - Deep dive into campaignCode = ZPI_220801_115.
+   - Deep dive into campaignCode = CAMP_A.
 
    Discount metric standard:
    - gross_discount_all_rows = discountAmount from all rows.
@@ -28,7 +28,7 @@ WITH selected_campaign_txn AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
 )
 
 SELECT
@@ -83,7 +83,7 @@ WITH selected_campaign_txn AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
 )
 
 SELECT TOP 50
@@ -131,7 +131,7 @@ WITH selected_campaign_txn AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
 )
 
 SELECT
@@ -176,7 +176,7 @@ WITH selected_campaign_txn AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
       AND t.transStatus = 1
 )
 
@@ -206,7 +206,7 @@ WITH selected_campaign_txn AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
       AND t.transStatus = 1
 ),
 
@@ -270,7 +270,7 @@ WITH selected_campaign_users AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
       AND t.transStatus = 1
 )
 
@@ -299,7 +299,7 @@ WITH selected_campaign_users AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
       AND t.transStatus = 1
 ),
 
@@ -338,7 +338,7 @@ WITH selected_campaign_users AS (
     FROM dbo.[transaction] t
     JOIN dbo.campaign_info c
         ON t.campaignID = c.campaignID
-    WHERE c.campaignCode = 'ZPI_220801_115'
+    WHERE c.campaignCode = 'CAMP_A'
       AND t.transStatus = 1
 ),
 

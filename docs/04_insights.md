@@ -4,9 +4,9 @@ The narrative a stakeholder should walk away with — in plain business terms.
 
 ## 1. The promotion worked, but its budget is concentrated
 
-Campaign `ZPI_220801_115` drove **254,309 transactions** from **90,555 users** at a **76% success rate**,
+Campaign `CAMP_A` drove **254,309 transactions** from **90,555 users** at a **76% success rate**,
 spending **7.0bn ₫** in credited promo cost. But that spend is **not evenly distributed**: a single promotion
-(`Ref_CB_50K`) accounts for **74%** of the credited cost. Budget risk is concentrated in a few promotions and a
+(`PROMO_45`) accounts for **74%** of the credited cost. Budget risk is concentrated in a few promotions and a
 few merchant categories — so monitoring effort should be too.
 
 ## 2. A small group of users absorbs a large share of the budget
@@ -49,7 +49,7 @@ honestly and listed as future work.
 | Do now | Why |
 |---|---|
 | Put the **medium-balanced rule** into **shadow mode / manual review** | best coverage-to-workload trade-off |
-| Prioritise the **dominant promotion (`Ref_CB_50K`) & top merchant categories** for monitoring | 74% of budget risk sits there |
+| Prioritise the **dominant promotion (`PROMO_45`) & top merchant categories** for monitoring | 74% of budget risk sits there |
 | Keep the **"review score, not fraud" disclaimer** on every stakeholder view | avoids over-action on unlabeled data |
 | Build **campaign-scoped retention by risk group** next | to test whether abuse users retain worse |
 
