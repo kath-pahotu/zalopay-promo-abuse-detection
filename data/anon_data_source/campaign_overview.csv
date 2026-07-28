@@ -1,0 +1,2 @@
+campaignCode,transaction_rows,unique_users,campaign_id_count,payment_rows,successful_rows,success_rate_pct,gross_discount_all_rows,credited_discount_success_only,non_success_discount_amount,first_seen,last_seen
+CAMP_A,254309,90555,73,150399,193295,76.01,8585050000,7003955000,1581095000,2022-06-01,2022-08-01 23:57:37

@@ -92,14 +92,17 @@ Each user earns 0–2 points per signal → a 0–11 `suspicion_score` → risk 
 sql/              00–09 T-SQL: trust → business Qs → campaign pick → features (07b view) → scoring → exports
 notebook/         01_rule_simulation_storytelling.ipynb — rule simulation, sensitivity, reconciliation
 scripts/          export, verify, orchestration, and portfolio-asset helpers
-data/output/      aggregated SQL/Python handoff files (no individual-user rows)
-dashboard/        Power BI theme (the interactive report is shown in the video walkthrough above)
+data/output/      aggregated SQL/Python handoff files used by the reproducible pipeline
+data/anon_data_source/
+                  anonymized public data sources used by the portfolio PBIX
+dashboard/        public Power BI report (.pbix) and matching dashboard theme
+presentation/     stakeholder-facing project presentation (PDF)
 docs/             per-stage case studies (SQL / Python / Power BI / insights)   ← recruiter-facing
 ```
 
-> **Privacy note:** this public repository contains **code, docs, aggregated outputs, and the presentation**
-> only. Individual user-level rows and the raw `.pbix` (which embeds them) are kept out; the dashboard is
-> demonstrated in the video walkthrough linked above.
+> **Privacy note:** raw source datasets and original user identifiers are excluded. The files under
+> `data/anon_data_source/` replace user IDs with synthetic identifiers, and the public `.pbix` is built from
+> those anonymized sources. The risk labels remain rule-based review signals, not confirmed fraud.
 
 ## Skills demonstrated
 
@@ -118,5 +121,5 @@ labels exist.
 ---
 
 *Portfolio project analysing a real ZaloPay promotion campaign dataset. "Suspicious" = rule-based review score,
-not confirmed fraud. This public version includes code, documentation, aggregated outputs, and the presentation
-— individual user-level data is intentionally excluded.*
+not confirmed fraud. This public version includes code, documentation, anonymized portfolio data, the public
+Power BI report, and the stakeholder presentation; raw source data and original identifiers are excluded.*

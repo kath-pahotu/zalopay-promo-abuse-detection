@@ -19,6 +19,15 @@ FILES = [
     "promotion_daily_summary.csv", "merchant_daily_summary.csv",
 ]
 
+# A public checkout intentionally keeps anonymized user-level exports separate.
+# A fresh SQL export still takes priority when all 14 files exist in data/output.
+PUBLIC_OUT = Path(__file__).resolve().parents[1] / "data" / "anon_data_source"
+if not all((OUT / name).exists() for name in FILES) and all(
+    (PUBLIC_OUT / name).exists() for name in FILES
+):
+    OUT = PUBLIC_OUT
+    print(f"[INFO] Verifying public anonymized exports in {OUT}")
+
 checks = []
 def check(name, ok, detail=""):
     checks.append(ok)
