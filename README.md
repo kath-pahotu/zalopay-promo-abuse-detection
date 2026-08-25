@@ -1,125 +1,129 @@
-# ZaloPay Promotion-Abuse Detection — SQL → Python → Power BI
+# ZaloPay Promotion-Abuse Detection
 
-> End-to-end analytics that finds users extracting a ZaloPay promotion budget, quantifies the financial
-> exposure, and recommends a review rule — built across **SQL Server → Python → Power BI**.
+> A decision-focused portfolio case study: SQL finds behavioural signals, Python tests review rules, and Power BI turns the result into an operational review decision.
 
-> **Note:** all "suspicious" labels are a **rule-based review score, not confirmed fraud.** The dataset has no
-> confirmed fraud/bot labels, so results are review-prioritization signals, validated by SQL↔Python
-> reconciliation — not ground truth.
+> **Scope note:** “suspicious” means a rule-based **review-priority signal**, not confirmed fraud. The source contains no labelled fraud outcomes, so the recommendation is for review/shadow mode—not automatic blocking.
 
----
+## Explore the project
 
-## TL;DR
-
-ZaloPay ran a large cashback/voucher **promotion campaign** (`CAMP_A`, 73 sub-campaigns). This project
-scores every campaign user for **promo-abuse risk** on six behavioural signals, stress-tests candidate review
-rules in Python, and surfaces the decision in a 5-page Power BI dashboard.
-
-**Headline result:** **4.26% of scored users (3,671 of 86,170) absorb 26.94% of the credited promo budget
-(≈1.89bn of 7.00bn ₫).** Promo cost is highly concentrated (one promotion, `PROMO_45`, = **74%** of spend),
-and a **"medium balanced" review rule** flags 1,994 users (2.3% review workload) while capturing 23.9% of the
-at-risk cost — recommended for **shadow-mode / high-priority manual review**, not automated blocking.
-
-🔗 **Live dashboard walkthrough (YouTube):** https://youtu.be/_UaicJaSGOs · **Case studies:**
-[SQL](docs/01_sql_stage.md) · [Python](docs/02_python_stage.md) · [Power BI](docs/03_powerbi_stage.md) ·
-[Insights](docs/04_insights.md)
+- [Open the interactive Power BI report](https://app.powerbi.com/view?r=eyJrIjoiZmM2NjBhZDUtMjVjYy00ZjcyLWEyMTEtMmZhMTkzZWM2Yzk0IiwidCI6IjNkZmNkMTY2LWYzZmUtNGQxNS1hNDYzLTA0NTU2YzMwNWZmMiIsImMiOjEwfQ%3D%3D)
+- [Read the presentation in GitHub’s browser viewer](presentation/ZaloPay_Promotion_Abuse_Presentation.pdf)
+- [Trace the SQL evidence](docs/01_sql_stage.md) · [review the Python simulation](docs/02_python_stage.md) · [see the Power BI design](docs/03_powerbi_stage.md) · [read the findings](docs/04_insights.md)
 
 ---
 
-## The business problem
+## 1. Business problem
 
-Promotions drive growth but attract **extractors** — users who farm cashback through referral rings, shared
-devices/IPs, reciprocal transfer loops, and rapid discount redemption. Unmeasured, a promotion's budget quietly
-leaks to a small group who won't retain. Questions answered:
+### The scenario
 
-1. How big is the promotion, and where does the money go?
-2. Which users behave like extractors, and *why*?
-3. How much budget is exposed to them?
-4. What review rule balances **coverage vs. review workload**?
-5. Did the spend buy lasting users?
+A cashback/voucher campaign can drive growth, but its budget can also be concentrated among users with behaviours consistent with promotion extraction: rapid redemption, high captured discounts, referral farming, shared devices/IPs, and reciprocal transfer loops.
 
-## Headline numbers
+### The objective
 
-| Question | Answer | Source |
-|---|---|---:|
-| Campaign size | 254,309 transactions · 90,555 users · 76.01% success | `campaign_overview` |
-| Promo cost | **7.00bn ₫** credited (success-only) | `campaign_overview` |
-| Cost concentration | **74.02%** in one promotion (`PROMO_45`) | `campaign_promotion_breakdown` |
-| Scored population | **86,170** users (≥1 successful campaign txn) | `abuse_impact_summary` |
-| Suspicious users | **3,671 (4.26%)** score ≥ 3 | scoring model |
-| Their share of cost | **26.94%** (≈1.89bn ₫) | `abuse_impact_summary` |
-| Peak daily exposure | **40.70%** of daily promo cost (22 Jul) | `campaign_daily_risk_summary` |
-| Recommended rule | Medium-balanced: 1,994 flagged · 23.9% captured · 0% low-score proxy | `rule_simulation` |
+**Which campaign users should be prioritised for manual review, and what share of promotion cost does that review queue cover?**
 
-## Architecture
+### KPIs
+
+| KPI | Why it matters |
+|---|---|
+| Credited promotion cost | Budget actually paid on successful transactions |
+| Suspicious-user rate | Review population size relative to all scored users |
+| Suspicious cost share | Cost exposed to the review-priority population |
+| Users flagged / user share | Manual-review workload |
+| Cost captured by a rule | Coverage achieved by that workload |
+| Retention | Context only; it is not campaign-causal proof |
+
+---
+
+## 2. Executive summary
+
+### Key finding 1 — budget is concentrated before any rule is applied
+
+`CAMP_A` contains **254,309 transactions** from **90,555 users**; **7.00bn ₫** was credited on successful transactions. One anonymised promotion, `PROMO_45`, accounts for **74.02%** of credited cost. Monitoring should focus on where the budget actually sits. [Check the output table](data/output/campaign_promotion_breakdown.csv).
+
+### Key finding 2 — a small review-priority group is associated with a large cost share
+
+Of **86,170 scored users**, **3,671 (4.26%)** score at least 3. They account for **26.94%** of credited promotion cost, approximately **1.89bn ₫**; the peak daily share reaches **40.70%**. [Check the reconciled impact summary](data/output/abuse_impact_summary.csv).
+
+### Key finding 3 — a balanced rule is an operational starting point
+
+The recommended **medium-balanced** rule flags **1,994 users (2.31%)** and covers **23.89%** of review-priority cost. It is suitable for **shadow mode / high-priority manual review**. Its 0% low-score impact is an internal-consistency proxy, not a measured false-positive rate.
+
+![Candidate review rules: workload versus cost captured](data/output/python_rule_simulation/focused_business_rule_tradeoff_scatter.png)
+
+### Recommendation
+
+Run the medium-balanced rule in shadow mode, route its queue to investigators, prioritise the dominant promotion and high-exposure merchants, and collect investigator outcomes before considering automated action. See the [full recommendation and caveats](docs/04_insights.md).
+
+---
+
+## 3. Tech stack
+
+| Tool | Role in the story | Evidence |
+|---|---|---|
+| **SQL Server / T-SQL** | Trust checks, campaign prioritisation, feature engineering, scoring and dashboard exports | [SQL stage](docs/01_sql_stage.md) · [`sql/`](sql/) |
+| **Python / pandas** | Rule simulation, threshold sensitivity and independent SQL↔Python reconciliation | [Python stage](docs/02_python_stage.md) · [notebook](notebook/01_rule_simulation_storytelling.ipynb) |
+| **Power BI** | Interactive stakeholder report with KPIs, exposure views, review decisions and retention context | [Live report](https://app.powerbi.com/view?r=eyJrIjoiZmM2NjBhZDUtMjVjYy00ZjcyLWEyMTEtMmZhMTkzZWM2Yzk0IiwidCI6IjNkZmNkMTY2LWYzZmUtNGQxNS1hNDYzLTA0NTU2YzMwNWZmMiIsImMiOjEwfQ%3D%3D) · [design notes](docs/03_powerbi_stage.md) |
+
+---
+
+## 4. Data pipeline
 
 ```mermaid
 flowchart LR
-    A[(SQL Server<br/>ZaloPay data)] -->|"00-05 trust,<br/>business Qs"| B[SQL<br/>06 campaign pick]
-    B -->|"07 features"| C[SQL 07b VIEW<br/>single feature source]
-    C -->|"08 scoring<br/>6 signals"| D[SQL 09<br/>Power BI exports]
-    D -->|14 CSVs| E[Python notebook<br/>rule simulation +<br/>sensitivity + reconcile]
-    E -->|"summary CSVs<br/>+ workbooks"| F[Power BI<br/>5-page dashboard]
-    D --> F
+    A[(SQL Server source tables)] --> B[00–05: trust checks and business questions]
+    B --> C[06: campaign prioritisation]
+    C --> D[07 / 07b: behavioural features]
+    D --> E[08: rule-based scoring]
+    E --> F[09: 14 Power BI exports]
+    F --> G[Python: simulation, sensitivity, reconciliation]
+    F --> H[Power BI: 5-page report]
+    G --> H
 ```
 
-| Stage | Tool | Why |
+| Phase | What happens | Evidence to inspect |
 |---|---|---|
-| Trust → business Qs → campaign selection → user scoring | **SQL Server (T-SQL)** | joins, window functions, cohort logic, rule scoring at scale |
-| Rule simulation, sensitivity, SQL↔Python reconciliation | **Python (pandas)** | fast what-if experimentation, reproducible validation |
-| Communication & decision | **Power BI** | interactive, stakeholder-facing, decision-oriented |
+| **1. SQL** | Validates data assumptions, selects the campaign, builds six signals and scores users | [`sql/README.md`](sql/README.md) · [`08_abuse_detection_rules_final.sql`](sql/08_abuse_detection_rules_final.sql) |
+| **2. Python** | Rebuilds decision metrics, compares candidate rules, sweeps thresholds and reconciles with SQL | [notebook](notebook/01_rule_simulation_storytelling.ipynb) · [reconciliation output](data/output/python_rule_simulation/python_sql_reconciliation_summary.csv) |
+| **3. Power BI** | Refreshes exported tables into a 5-page decision report | [live report](https://app.powerbi.com/view?r=eyJrIjoiZmM2NjBhZDUtMjVjYy00ZjcyLWEyMTEtMmZhMTkzZWM2Yzk0IiwidCI6IjNkZmNkMTY2LWYzZmUtNGQxNS1hNDYzLTA0NTU2YzMwNWZmMiIsImMiOjEwfQ%3D%3D) · [browser-viewable presentation](presentation/ZaloPay_Promotion_Abuse_Presentation.pdf) |
 
-## The 6 behavioural signals
+### Reproducibility proof
 
-Each user earns 0–2 points per signal → a 0–11 `suspicion_score` → risk tiers (High ≥7 · Medium 5–6 · Review
-3–4 · Low 0–2).
+The Python and SQL implementations reconcile on every published headline check, including suspicious-user count, cost share and the SQL baseline rules. [Open the reconciliation table](data/output/python_rule_simulation/python_sql_reconciliation_summary.csv).
 
-| Signal | Flags | Rationale |
-|---|---|---|
-| Immediate discount (0–1 day) | fast, high redemption after joining | extraction |
-| Credited discount | very high campaign discount captured | budget concentration |
-| Referral | many invitees | referral farming |
-| Device sharing | many users per device | multi-account / bot |
-| IP sharing | many users per IP | multi-account / bot |
-| Transfer loop | reciprocal A→B→A transfers | collusion / wash activity |
-
-*(The transfer-loop signal was the subject of a real bug fix — a self-join cross-product had inflated it to
-500,057 before it was corrected to a distinct-partner max of 158. See the [SQL case study](docs/01_sql_stage.md).)*
-
-## Repository structure
-
-```text
-sql/              00–09 T-SQL: trust → business Qs → campaign pick → features (07b view) → scoring → exports
-notebook/         01_rule_simulation_storytelling.ipynb — rule simulation, sensitivity, reconciliation
-scripts/          export, verify, orchestration, and portfolio-asset helpers
-data/output/      aggregated SQL/Python handoff files used by the reproducible pipeline
-data/anon_data_source/
-                  anonymized public data sources used by the portfolio PBIX
-dashboard/        public Power BI report (.pbix) and matching dashboard theme
-presentation/     stakeholder-facing project presentation (PDF)
-docs/             per-stage case studies (SQL / Python / Power BI / insights)   ← recruiter-facing
-```
-
-> **Privacy note:** raw source datasets and original user identifiers are excluded. The files under
-> `data/anon_data_source/` replace user IDs with synthetic identifiers, and the public `.pbix` is built from
-> those anonymized sources. The risk labels remain rule-based review signals, not confirmed fraud.
-
-## Skills demonstrated
-
-`SQL` (CTEs, window functions, self-joins, percentiles, cohort retention, rule scoring) · `Python/pandas`
-(simulation, sensitivity, reconciliation testing) · `Power BI` (modelling, DAX, drill paths, conditional
-formatting, navigation, publishing) · **data storytelling**, **metric-consistency / trust engineering**,
-**honest framing of an unlabeled problem**.
-
-## Limitations & roadmap
-
-No confirmed fraud labels → rule-based review score, validated by reconciliation, not outcome labels. Retention
-is overall-payment context, not campaign-attributed. **Next:** network/ring detection · velocity features ·
-a second-opinion anomaly model (Isolation Forest) · a what-if threshold simulator · formal validation once
-labels exist.
+![Business-rule exposure comparison](data/output/python_rule_simulation/business_rule_discount_exposure_bar.png)
 
 ---
 
-*Portfolio project analysing a real ZaloPay promotion campaign dataset. "Suspicious" = rule-based review score,
-not confirmed fraud. This public version includes code, documentation, anonymized portfolio data, the public
-Power BI report, and the stakeholder presentation; raw source data and original identifiers are excluded.*
+## 5. Repository architecture
+
+```text
+sql/                   00–09 T-SQL: trust → campaign choice → features → scoring → exports
+notebook/              narrated Python rule-simulation and reconciliation notebook
+scripts/               refresh/export/validation helpers; see docs/05_reproducibility_and_scripts.md
+data/output/           anonymised aggregate outputs, evidence CSVs and simulation charts
+data/anon_data_source/ anonymised Power BI input sources
+dashboard/             public Power BI report (.pbix) and theme
+presentation/          stakeholder presentation PDF (viewable in GitHub)
+docs/                  evidence-led stage notes and findings
+```
+
+### What are the scripts for — are they all needed?
+
+No. The live Power BI report, presentation, output charts and docs are all a reviewer needs to understand the story. The scripts are for **refreshing and validating** the project, not for reading it. [See the script-by-script guide](docs/05_reproducibility_and_scripts.md).
+
+---
+
+## Privacy and limitations
+
+- Raw data and original identifiers are excluded. Public sources use anonymised campaign, promotion, merchant and user identifiers.
+- User-level public files are sampled; aggregate outputs remain intact so the narrative can be checked.
+- The score is a prioritisation rule, not a fraud classifier. The project recommends review/shadow mode, not automated blocking.
+- Retention is overall-payment context and does not demonstrate campaign-attributed retention by risk group.
+
+## Suggested review order
+
+1. [Open the live Power BI report](https://app.powerbi.com/view?r=eyJrIjoiZmM2NjBhZDUtMjVjYy00ZjcyLWEyMTEtMmZhMTkzZWM2Yzk0IiwidCI6IjNkZmNkMTY2LWYzZmUtNGQxNS1hNDYzLTA0NTU2YzMwNWZmMiIsImMiOjEwfQ%3D%3D).
+2. Read the [findings and recommendation](docs/04_insights.md).
+3. Open the [presentation PDF in GitHub](presentation/ZaloPay_Promotion_Abuse_Presentation.pdf).
+4. If you want to audit the logic, follow [SQL](docs/01_sql_stage.md) → [Python](docs/02_python_stage.md) → [Power BI](docs/03_powerbi_stage.md).
